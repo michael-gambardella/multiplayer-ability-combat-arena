@@ -1,0 +1,844 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Multi-Ability Arena Course</title>
+  <style>
+    :root {
+      --bg-0: #070c16;
+      --bg-1: #0d1628;
+      --bg-2: #121d33;
+      --panel: #0f1829;
+      --panel-2: #121f34;
+      --line: #213150;
+      --ink: #dce7ff;
+      --muted: #9fb2d8;
+      --accent: #4db7ff;
+      --gold: #ffcc66;
+      --green: #3ddc97;
+      --danger: #ff7f7f;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background:
+        radial-gradient(circle at 85% -15%, #1a3258 0%, transparent 45%),
+        linear-gradient(180deg, var(--bg-0), var(--bg-1) 40%, var(--bg-2));
+      color: var(--ink);
+      font-family: "IBM Plex Sans", "Trebuchet MS", "Segoe UI", sans-serif;
+      scroll-behavior: smooth;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      align-self: start;
+      height: 100vh;
+      overflow: auto;
+      border-right: 1px solid var(--line);
+      background: linear-gradient(180deg, #0b1322, #0e1729);
+      padding: 18px 14px;
+    }
+
+    .brand {
+      padding: 12px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #0f1d34, #101b2f);
+      border-radius: 10px;
+      margin-bottom: 14px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.05rem;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+
+    .brand p {
+      margin: 8px 0 0;
+      font-size: 0.86rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .progress {
+      margin-top: 10px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      padding-top: 8px;
+      border-top: 1px dashed var(--line);
+    }
+
+    .nav-section {
+      margin-top: 16px;
+      font-size: 0.78rem;
+      color: var(--gold);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .nav-list {
+      list-style: none;
+      margin: 8px 0 0;
+      padding: 0;
+    }
+
+    .nav-list li { margin: 3px 0; }
+
+    .nav-list a {
+      display: block;
+      text-decoration: none;
+      color: var(--ink);
+      font-size: 0.9rem;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+    }
+
+    .nav-list a:hover {
+      background: #132341;
+      border-color: #27456f;
+    }
+
+    .content {
+      padding: 22px;
+      max-width: 1200px;
+    }
+
+    .header {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #0f1d33, #111f35);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+
+    .header h2 {
+      margin: 0;
+      font-size: 1.4rem;
+    }
+
+    .header p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .meta span {
+      border: 1px solid #28588e;
+      background: #132744;
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 0.75rem;
+      color: #9fd3ff;
+    }
+
+    .week {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #101a2f, #111c31);
+      border-radius: 12px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .quiz-center {
+      border: 1px solid #2b4674;
+      background: linear-gradient(180deg, #101e35, #0f1a2f);
+      border-radius: 12px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .quiz-center-head {
+      padding: 14px 16px;
+      border-bottom: 1px solid #2b4674;
+      background: linear-gradient(90deg, #173157, #1a3a67);
+    }
+
+    .quiz-grid {
+      padding: 14px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 12px;
+    }
+
+    .quiz-card {
+      border: 1px solid #2b4674;
+      background: #0f1b31;
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .quiz-card h4 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+    }
+
+    .question {
+      border: 1px solid #27405f;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #122039;
+    }
+
+    .question p {
+      margin-bottom: 8px;
+      color: #bfd1ee;
+    }
+
+    .option {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      margin-bottom: 6px;
+      color: #b0c3e2;
+      font-size: 0.92rem;
+    }
+
+    .question.correct { border-color: #2f7e5d; background: #132f28; }
+    .question.incorrect { border-color: #8d3d3d; background: #301a21; }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .btn {
+      border: 1px solid #3e618f;
+      background: #193a63;
+      color: #dce7ff;
+      border-radius: 8px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .btn.alt {
+      border-color: #6e5c2b;
+      background: #4a3a13;
+      color: #f5ddb0;
+    }
+
+    .result {
+      margin-top: 8px;
+      color: #9fd3ff;
+      font-size: 0.9rem;
+      min-height: 1.2rem;
+    }
+
+    .correct-answer {
+      display: none;
+      margin-top: 4px;
+      color: #9de7c6;
+      font-size: 0.82rem;
+    }
+
+    .quiz-card.show-answers .correct-answer { display: block; }
+
+    .week-title {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(90deg, #12233f, #132947);
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .week-body {
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .item {
+      border: 1px solid #25385c;
+      background: #0f1b30;
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .label {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 999px;
+      margin-bottom: 8px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .lecture { color: #9fd3ff; background: #173660; border: 1px solid #2c5d99; }
+    .lab { color: #90ffd0; background: #164633; border: 1px solid #2c7f5f; }
+    .quiz { color: #ffe3a6; background: #4a360f; border: 1px solid #806122; }
+    .test { color: #ffc5c5; background: #4b1d1d; border: 1px solid #8d3d3d; }
+
+    h3 {
+      margin: 0 0 8px;
+      font-family: "Source Serif 4", "Georgia", serif;
+    }
+
+    p, li {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    ul {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .exam {
+      border: 1px solid #3e2e0f;
+      background: linear-gradient(180deg, #2b220f, #20180a);
+      border-radius: 12px;
+      padding: 14px;
+      margin: 16px 0;
+    }
+
+    .exam h3 {
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+
+    .foot {
+      border-top: 1px solid var(--line);
+      margin-top: 20px;
+      padding-top: 12px;
+      color: #89a0c7;
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar {
+        position: relative;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1>Multi-Ability Arena Course</h1>
+        <p>Complete engineering curriculum for UEFN Verse hero-combat development.</p>
+        <div class="progress">12 weeks | Lectures + Labs + Quizzes + Milestone Tests</div>
+      </div>
+
+      <div class="nav-section">Phase 1 - Foundation</div>
+      <ul class="nav-list">
+        <li><a href="#week1">Week 1: Architecture and State</a></li>
+        <li><a href="#week2">Week 2: Teams and Hero Select</a></li>
+        <li><a href="#week3">Week 3: Combat Foundation</a></li>
+      </ul>
+
+      <div class="nav-section">Phase 2 - Ability Platform</div>
+      <ul class="nav-list">
+        <li><a href="#week4">Week 4: Ability Framework</a></li>
+        <li><a href="#week5">Week 5: Titan and Specter</a></li>
+        <li><a href="#week6">Week 6: Sage and Blaster</a></li>
+        <li><a href="#midterm">Midterm Practical</a></li>
+      </ul>
+
+      <div class="nav-section">Phase 3 - Match Experience</div>
+      <ul class="nav-list">
+        <li><a href="#week7">Week 7: Score and Timer</a></li>
+        <li><a href="#week8">Week 8: HUD and Feedback</a></li>
+        <li><a href="#week9">Week 9: Arena and Spawn Fairness</a></li>
+      </ul>
+
+      <div class="nav-section">Phase 4 - Delivery</div>
+      <ul class="nav-list">
+        <li><a href="#week10">Week 10: VFX and SFX</a></li>
+        <li><a href="#week11">Week 11: Balance and QA</a></li>
+        <li><a href="#week12">Week 12: Publish and Defense</a></li>
+        <li><a href="#final">Final Exam</a></li>
+      </ul>
+
+      <div class="nav-section">References</div>
+      <ul class="nav-list">
+        <li><a href="#quiz-center">Interactive Quiz Center</a></li>
+        <li><a href="curriculumoutline.md">curriculumoutline.md</a></li>
+        <li><a href="entire_course.md">entire_course.md</a></li>
+        <li><a href="GAME_OVERVIEW.md">GAME_OVERVIEW.md</a></li>
+      </ul>
+    </aside>
+
+    <main class="content">
+      <header class="header">
+        <h2>Multi-Ability Arena Full Curriculum</h2>
+        <p>This course is specific to this project and maps directly to your sprint plan and implementation files. Each week includes two lectures, one lab deliverable, one quiz, and milestone tests at phase boundaries.</p>
+        <div class="meta">
+          <span>12 Weeks</span>
+          <span>Project-Specific</span>
+          <span>UEFN + Verse</span>
+          <span>Portfolio Ready</span>
+        </div>
+      </header>
+
+      <section id="quiz-center" class="quiz-center">
+        <div class="quiz-center-head">
+          <h3>Interactive Quiz Center</h3>
+          <p>Select answers, grade instantly, and reveal answer keys. This is client-side only and does not affect game systems.</p>
+        </div>
+        <div class="quiz-grid">
+          <article class="quiz-card" data-quiz-title="Week 1 Quiz">
+            <h4>Week 1 Quiz</h4>
+            <div class="question" data-answer="b">
+              <p>1. Which device should authoritatively own match phase transitions?</p>
+              <label class="option"><input type="radio" name="w1q1" value="a"> <span>team_manager</span></label>
+              <label class="option"><input type="radio" name="w1q1" value="b"> <span>game_state_manager</span></label>
+              <label class="option"><input type="radio" name="w1q1" value="c"> <span>hud_controller</span></label>
+              <div class="correct-answer">Answer: game_state_manager</div>
+            </div>
+            <div class="question" data-answer="c">
+              <p>2. Why centralize constants in match config?</p>
+              <label class="option"><input type="radio" name="w1q2" value="a"> <span>To reduce map memory only</span></label>
+              <label class="option"><input type="radio" name="w1q2" value="b"> <span>To avoid writing any tests</span></label>
+              <label class="option"><input type="radio" name="w1q2" value="c"> <span>To allow safe tuning without core logic edits</span></label>
+              <div class="correct-answer">Answer: Safe tuning without core logic edits</div>
+            </div>
+            <div class="actions"><button class="btn grade-quiz">Grade</button><button class="btn alt reveal-answers">Show Answers</button></div>
+            <div class="result"></div>
+          </article>
+
+          <article class="quiz-card" data-quiz-title="Week 2 Quiz">
+            <h4>Week 2 Quiz</h4>
+            <div class="question" data-answer="a">
+              <p>1. Late joiners should be assigned to:</p>
+              <label class="option"><input type="radio" name="w2q1" value="a"> <span>The team with fewer players</span></label>
+              <label class="option"><input type="radio" name="w2q1" value="b"> <span>A random team always</span></label>
+              <label class="option"><input type="radio" name="w2q1" value="c"> <span>The team with higher score</span></label>
+              <div class="correct-answer">Answer: The team with fewer players</div>
+            </div>
+            <div class="question" data-answer="c">
+              <p>2. What should happen if hero select expires with no pick?</p>
+              <label class="option"><input type="radio" name="w2q2" value="a"> <span>Kick player from match</span></label>
+              <label class="option"><input type="radio" name="w2q2" value="b"> <span>Leave hero unset</span></label>
+              <label class="option"><input type="radio" name="w2q2" value="c"> <span>Assign a default hero</span></label>
+              <div class="correct-answer">Answer: Assign a default hero</div>
+            </div>
+            <div class="actions"><button class="btn grade-quiz">Grade</button><button class="btn alt reveal-answers">Show Answers</button></div>
+            <div class="result"></div>
+          </article>
+
+          <article class="quiz-card" data-quiz-title="Week 3 Quiz">
+            <h4>Week 3 Quiz</h4>
+            <div class="question" data-answer="b">
+              <p>1. Which step happens before HP subtraction in damage flow?</p>
+              <label class="option"><input type="radio" name="w3q1" value="a"> <span>Respawn timer setup</span></label>
+              <label class="option"><input type="radio" name="w3q1" value="b"> <span>Modifier and invulnerability checks</span></label>
+              <label class="option"><input type="radio" name="w3q1" value="c"> <span>Kill feed broadcast</span></label>
+              <div class="correct-answer">Answer: Modifier and invulnerability checks</div>
+            </div>
+            <div class="question" data-answer="a">
+              <p>2. Assist credit should use:</p>
+              <label class="option"><input type="radio" name="w3q2" value="a"> <span>A recent damage window (10s target)</span></label>
+              <label class="option"><input type="radio" name="w3q2" value="b"> <span>Only total damage dealt</span></label>
+              <label class="option"><input type="radio" name="w3q2" value="c"> <span>Random teammate selection</span></label>
+              <div class="correct-answer">Answer: Recent damage window</div>
+            </div>
+            <div class="actions"><button class="btn grade-quiz">Grade</button><button class="btn alt reveal-answers">Show Answers</button></div>
+            <div class="result"></div>
+          </article>
+
+          <article class="quiz-card" data-quiz-title="Week 4 Quiz">
+            <h4>Week 4 Quiz</h4>
+            <div class="question" data-answer="c">
+              <p>1. Cooldowns are best stored as:</p>
+              <label class="option"><input type="radio" name="w4q1" value="a"> <span>Single global float</span></label>
+              <label class="option"><input type="radio" name="w4q1" value="b"> <span>Queue of timestamps</span></label>
+              <label class="option"><input type="radio" name="w4q1" value="c"> <span>Map(agent -> map(slot -> last used time))</span></label>
+              <div class="correct-answer">Answer: Map(agent -> map(slot -> last used time))</div>
+            </div>
+            <div class="question" data-answer="b">
+              <p>2. Ultimate cooldown should begin:</p>
+              <label class="option"><input type="radio" name="w4q2" value="a"> <span>At match start</span></label>
+              <label class="option"><input type="radio" name="w4q2" value="b"> <span>After ultimate effect ends</span></label>
+              <label class="option"><input type="radio" name="w4q2" value="c"> <span>After first elimination</span></label>
+              <div class="correct-answer">Answer: After ultimate effect ends</div>
+            </div>
+            <div class="actions"><button class="btn grade-quiz">Grade</button><button class="btn alt reveal-answers">Show Answers</button></div>
+            <div class="result"></div>
+          </article>
+
+          <article class="quiz-card" data-quiz-title="Week 5 Quiz">
+            <h4>Week 5 Quiz</h4>
+            <div class="question" data-answer="a">
+              <p>1. Titan Earthshatter targeting is a:</p>
+              <label class="option"><input type="radio" name="w5q1" value="a"> <span>Cone check using dot product</span></label>
+              <label class="option"><input type="radio" name="w5q1" value="b"> <span>Sphere check only</span></label>
+              <label class="option"><input type="radio" name="w5q1" value="c"> <span>Line trace only</span></label>
+              <div class="correct-answer">Answer: Cone check using dot product</div>
+            </div>
+            <div class="question" data-answer="c">
+              <p>2. Specter invisibility should break when:</p>
+              <label class="option"><input type="radio" name="w5q2" value="a"> <span>Running</span></label>
+              <label class="option"><input type="radio" name="w5q2" value="b"> <span>Jumping</span></label>
+              <label class="option"><input type="radio" name="w5q2" value="c"> <span>Dealing damage or timer expiry</span></label>
+              <div class="correct-answer">Answer: Dealing damage or timer expiry</div>
+            </div>
+            <div class="actions"><button class="btn grade-quiz">Grade</button><button class="btn alt reveal-answers">Show Answers</button></div>
+            <div class="result"></div>
+          </article>
+
+          <article class="quiz-card" data-quiz-title="Week 6 Quiz">
+            <h4>Week 6 Quiz</h4>
+            <div class="question" data-answer="b">
+              <p>1. Purify should remove:</p>
+              <label class="option"><input type="radio" name="w6q1" value="a"> <span>All effects including buffs</span></label>
+              <label class="option"><input type="radio" name="w6q1" value="b"> <span>Only negative tagged effects</span></label>
+              <label class="option"><input type="radio" name="w6q1" value="c"> <span>No effects</span></label>
+              <div class="correct-answer">Answer: Only negative tagged effects</div>
+            </div>
+            <div class="question" data-answer="a">
+              <p>2. Gravity Snare pull direction is:</p>
+              <label class="option"><input type="radio" name="w6q2" value="a"> <span>Normalize(snare center - target position)</span></label>
+              <label class="option"><input type="radio" name="w6q2" value="b"> <span>Normalize(target - forward vector)</span></label>
+              <label class="option"><input type="radio" name="w6q2" value="c"> <span>Cross(snare, target)</span></label>
+              <div class="correct-answer">Answer: Normalize(snare center - target position)</div>
+            </div>
+            <div class="actions"><button class="btn grade-quiz">Grade</button><button class="btn alt reveal-answers">Show Answers</button></div>
+            <div class="result"></div>
+          </article>
+
+          <article class="quiz-card" data-quiz-title="Week 7 Quiz">
+            <h4>Week 7 Quiz</h4>
+            <div class="question" data-answer="c">
+              <p>1. Base scoring model target:</p>
+              <label class="option"><input type="radio" name="w7q1" value="a"> <span>+2 elim / +1 assist</span></label>
+              <label class="option"><input type="radio" name="w7q1" value="b"> <span>+1 elim / +1 assist</span></label>
+              <label class="option"><input type="radio" name="w7q1" value="c"> <span>+1 elim / +0.5 assist</span></label>
+              <div class="correct-answer">Answer: +1 elimination and +0.5 assist</div>
+            </div>
+            <div class="question" data-answer="b">
+              <p>2. Tie at match end should trigger:</p>
+              <label class="option"><input type="radio" name="w7q2" value="a"> <span>Random winner</span></label>
+              <label class="option"><input type="radio" name="w7q2" value="b"> <span>Sudden death (next elimination wins)</span></label>
+              <label class="option"><input type="radio" name="w7q2" value="c"> <span>Immediate draw</span></label>
+              <div class="correct-answer">Answer: Sudden death</div>
+            </div>
+            <div class="actions"><button class="btn grade-quiz">Grade</button><button class="btn alt reveal-answers">Show Answers</button></div>
+            <div class="result"></div>
+          </article>
+
+          <article class="quiz-card" data-quiz-title="Week 8 Quiz">
+            <h4>Week 8 Quiz</h4>
+            <div class="question" data-answer="a">
+              <p>1. Kill feed messages should:</p>
+              <label class="option"><input type="radio" name="w8q1" value="a"> <span>Fade after short duration with clear cause</span></label>
+              <label class="option"><input type="radio" name="w8q1" value="b"> <span>Persist for full match</span></label>
+              <label class="option"><input type="radio" name="w8q1" value="c"> <span>Show only team names</span></label>
+              <div class="correct-answer">Answer: Fade after short duration with clear cause</div>
+            </div>
+            <div class="question" data-answer="c">
+              <p>2. Cooldown icons should be:</p>
+              <label class="option"><input type="radio" name="w8q2" value="a"> <span>Hidden until ready</span></label>
+              <label class="option"><input type="radio" name="w8q2" value="b"> <span>Static with no status</span></label>
+              <label class="option"><input type="radio" name="w8q2" value="c"> <span>Grayed on cooldown and glow when ready</span></label>
+              <div class="correct-answer">Answer: Grayed on cooldown and glow when ready</div>
+            </div>
+            <div class="actions"><button class="btn grade-quiz">Grade</button><button class="btn alt reveal-answers">Show Answers</button></div>
+            <div class="result"></div>
+          </article>
+
+          <article class="quiz-card" data-quiz-title="Week 9 Quiz">
+            <h4>Week 9 Quiz</h4>
+            <div class="question" data-answer="b">
+              <p>1. Spawn weighting should primarily favor:</p>
+              <label class="option"><input type="radio" name="w9q1" value="a"> <span>Closest point to allies</span></label>
+              <label class="option"><input type="radio" name="w9q1" value="b"> <span>Points farthest from enemies</span></label>
+              <label class="option"><input type="radio" name="w9q1" value="c"> <span>Random point only</span></label>
+              <div class="correct-answer">Answer: Points farthest from enemies</div>
+            </div>
+            <div class="question" data-answer="a">
+              <p>2. Arena should be symmetrical to:</p>
+              <label class="option"><input type="radio" name="w9q2" value="a"> <span>Avoid positional advantage</span></label>
+              <label class="option"><input type="radio" name="w9q2" value="b"> <span>Lower memory usage</span></label>
+              <label class="option"><input type="radio" name="w9q2" value="c"> <span>Increase random outcomes</span></label>
+              <div class="correct-answer">Answer: Avoid positional advantage</div>
+            </div>
+            <div class="actions"><button class="btn grade-quiz">Grade</button><button class="btn alt reveal-answers">Show Answers</button></div>
+            <div class="result"></div>
+          </article>
+
+          <article class="quiz-card" data-quiz-title="Week 10 Quiz">
+            <h4>Week 10 Quiz</h4>
+            <div class="question" data-answer="c">
+              <p>1. Good combat feedback prioritizes:</p>
+              <label class="option"><input type="radio" name="w10q1" value="a"> <span>Maximum visual noise</span></label>
+              <label class="option"><input type="radio" name="w10q1" value="b"> <span>Only audio cues</span></label>
+              <label class="option"><input type="radio" name="w10q1" value="c"> <span>Clarity, responsiveness, and impact</span></label>
+              <div class="correct-answer">Answer: Clarity, responsiveness, and impact</div>
+            </div>
+            <div class="question" data-answer="a">
+              <p>2. Low-health signaling should be:</p>
+              <label class="option"><input type="radio" name="w10q2" value="a"> <span>Consistent and hard to miss</span></label>
+              <label class="option"><input type="radio" name="w10q2" value="b"> <span>Rare and subtle only</span></label>
+              <label class="option"><input type="radio" name="w10q2" value="c"> <span>Disabled to reduce UI work</span></label>
+              <div class="correct-answer">Answer: Consistent and hard to miss</div>
+            </div>
+            <div class="actions"><button class="btn grade-quiz">Grade</button><button class="btn alt reveal-answers">Show Answers</button></div>
+            <div class="result"></div>
+          </article>
+
+          <article class="quiz-card" data-quiz-title="Week 11 Quiz">
+            <h4>Week 11 Quiz</h4>
+            <div class="question" data-answer="b">
+              <p>1. Balance decisions should be based on:</p>
+              <label class="option"><input type="radio" name="w11q1" value="a"> <span>Single anecdote</span></label>
+              <label class="option"><input type="radio" name="w11q1" value="b"> <span>Playtest evidence and metrics</span></label>
+              <label class="option"><input type="radio" name="w11q1" value="c"> <span>Random stat changes</span></label>
+              <div class="correct-answer">Answer: Playtest evidence and metrics</div>
+            </div>
+            <div class="question" data-answer="c">
+              <p>2. Regression testing is important because:</p>
+              <label class="option"><input type="radio" name="w11q2" value="a"> <span>It replaces design review</span></label>
+              <label class="option"><input type="radio" name="w11q2" value="b"> <span>It guarantees no future bugs ever</span></label>
+              <label class="option"><input type="radio" name="w11q2" value="c"> <span>New fixes can break previously working systems</span></label>
+              <div class="correct-answer">Answer: New fixes can break previous systems</div>
+            </div>
+            <div class="actions"><button class="btn grade-quiz">Grade</button><button class="btn alt reveal-answers">Show Answers</button></div>
+            <div class="result"></div>
+          </article>
+
+          <article class="quiz-card" data-quiz-title="Week 12 Quiz">
+            <h4>Week 12 Quiz</h4>
+            <div class="question" data-answer="a">
+              <p>1. A strong technical defense includes:</p>
+              <label class="option"><input type="radio" name="w12q1" value="a"> <span>Architecture decisions plus tradeoff rationale</span></label>
+              <label class="option"><input type="radio" name="w12q1" value="b"> <span>Only feature list screenshots</span></label>
+              <label class="option"><input type="radio" name="w12q1" value="c"> <span>Only personal opinions</span></label>
+              <div class="correct-answer">Answer: Architecture decisions with tradeoffs</div>
+            </div>
+            <div class="question" data-answer="b">
+              <p>2. Final package should include:</p>
+              <label class="option"><input type="radio" name="w12q2" value="a"> <span>Only gameplay video</span></label>
+              <label class="option"><input type="radio" name="w12q2" value="b"> <span>Test reports, technical breakdown, and release docs</span></label>
+              <label class="option"><input type="radio" name="w12q2" value="c"> <span>Only source code without docs</span></label>
+              <div class="correct-answer">Answer: Test reports, technical breakdown, and release docs</div>
+            </div>
+            <div class="actions"><button class="btn grade-quiz">Grade</button><button class="btn alt reveal-answers">Show Answers</button></div>
+            <div class="result"></div>
+          </article>
+        </div>
+      </section>
+
+      <section id="week1" class="week">
+        <div class="week-title">Week 1: Architecture and Match State Machine</div>
+        <div class="week-body">
+          <article class="item"><span class="label lecture">Lecture 1</span><h3>Vision to Architecture</h3><p>Translate gameplay pillars into technical requirements and module boundaries.</p></article>
+          <article class="item"><span class="label lecture">Lecture 2</span><h3>State Orchestration in Verse</h3><p>Build transition-safe match flow and define transition event contracts.</p></article>
+          <article class="item"><span class="label lab">Lab</span><h3>Foundation Scaffold</h3><ul><li>Create core folders and base manager files.</li><li>Implement <code>match_config</code>, <code>game_state_manager</code>, <code>player_manager</code>, <code>team_manager</code> shells.</li><li>Record evidence in Sprint 1 report.</li></ul></article>
+          <article class="item"><span class="label quiz">Quiz</span><h3>Knowledge Check (10)</h3><p>State guards, manager ownership, match constants, and lifecycle boundaries.</p></article>
+        </div>
+      </section>
+
+      <section id="week2" class="week">
+        <div class="week-title">Week 2: Team Systems and Hero Select</div>
+        <div class="week-body">
+          <article class="item"><span class="label lecture">Lecture 1</span><h3>Join/Leave Lifecycle</h3><p>Late join assignment, cleanup requirements, and stale-state prevention.</p></article>
+          <article class="item"><span class="label lecture">Lecture 2</span><h3>Hero Select Control Phase</h3><p>Timer design, lock-in behavior, and default fallback policy.</p></article>
+          <article class="item"><span class="label lab">Lab</span><h3>Match Core Completion</h3><ul><li>Complete team removal and player leave cleanup.</li><li>Implement default hero fallback and phase finalization.</li><li>Add minimum-player pause/backfill behavior.</li></ul></article>
+          <article class="item"><span class="label quiz">Quiz</span><h3>Knowledge Check (10)</h3><p>Fairness logic, disconnect edge cases, and hero select fail-safes.</p></article>
+        </div>
+      </section>
+
+      <section id="week3" class="week">
+        <div class="week-title">Week 3: Combat Foundation</div>
+        <div class="week-body">
+          <article class="item"><span class="label lecture">Lecture 1</span><h3>Damage Pipeline Architecture</h3><p>Damage types, modifier order, invulnerability checks, and elimination triggers.</p></article>
+          <article class="item"><span class="label lecture">Lecture 2</span><h3>Respawn and Assist Attribution</h3><p>Assist window rules, respawn safety, and overkill protection.</p></article>
+          <article class="item"><span class="label lab">Lab</span><h3>Combat Core Build</h3><ul><li>Implement health manager and damage pipeline.</li><li>Add elimination events and respawn loop.</li><li>Validate assist attribution window.</li></ul></article>
+          <article class="item"><span class="label quiz">Quiz</span><h3>Knowledge Check (10)</h3><p>Pipeline ordering, event sequencing, and respawn safeguards.</p></article>
+          <article class="item"><span class="label test">Phase Test</span><h3>Phase 1 Test</h3><p>20-question written check plus implementation review.</p></article>
+        </div>
+      </section>
+
+      <section id="week4" class="week">
+        <div class="week-title">Week 4: Ability Framework and Cooldowns</div>
+        <div class="week-body">
+          <article class="item"><span class="label lecture">Lecture 1</span><h3>Ability Data Structures</h3><p>Struct design for ability metadata and execution requirements.</p></article>
+          <article class="item"><span class="label lecture">Lecture 2</span><h3>Cooldown and Input Routing</h3><p>Per-agent per-slot timestamp maps and HUD synchronization.</p></article>
+          <article class="item"><span class="label lab">Lab</span><h3>Ability Executor Baseline</h3><ul><li>Implement ability activation gate.</li><li>Add cooldown tracking and reject feedback.</li><li>Log activation events for UI systems.</li></ul></article>
+          <article class="item"><span class="label quiz">Quiz</span><h3>Knowledge Check (10)</h3><p>Cooldown timing, map structures, and event contracts.</p></article>
+        </div>
+      </section>
+
+      <section id="week5" class="week">
+        <div class="week-title">Week 5: Titan and Specter</div>
+        <div class="week-body">
+          <article class="item"><span class="label lecture">Lecture 1</span><h3>Tank and Flanker Roles</h3><p>Role identity, counterplay windows, and pacing impact.</p></article>
+          <article class="item"><span class="label lecture">Lecture 2</span><h3>Vector Math in Hero Kits</h3><p>Cone checks, teleport destination validation, and line-of-sight rules.</p></article>
+          <article class="item"><span class="label lab">Lab</span><h3>Titan + Specter Implementation</h3><ul><li>Implement Seismic Slam, Barrier Charge, and Earthshatter.</li><li>Implement Phantom Strike, Smoke Bomb, and Death Mark.</li><li>Validate passive conditions and edge cases.</li></ul></article>
+          <article class="item"><span class="label quiz">Quiz</span><h3>Knowledge Check (10)</h3><p>Cone targeting, invisibility break conditions, and damage amplification.</p></article>
+        </div>
+      </section>
+
+      <section id="week6" class="week">
+        <div class="week-title">Week 6: Sage, Blaster, and Status Effects</div>
+        <div class="week-body">
+          <article class="item"><span class="label lecture">Lecture 1</span><h3>Support and Ranged Implementation</h3><p>Healing projectile logic, zone sustain, AoE burst, and pull mechanics.</p></article>
+          <article class="item"><span class="label lecture">Lecture 2</span><h3>Status Lifecycle Rules</h3><p>Stacking policy, strongest-source behavior, expiration, and cleanse logic.</p></article>
+          <article class="item"><span class="label lab">Lab</span><h3>Hero Roster Completion</h3><ul><li>Implement Sage and Blaster kits.</li><li>Complete status effect tracker.</li><li>Run cross-hero interaction checks.</li></ul></article>
+          <article class="item"><span class="label quiz">Quiz</span><h3>Knowledge Check (10)</h3><p>Status tags, cleanse behavior, and pull/knockback interactions.</p></article>
+        </div>
+      </section>
+
+      <section id="midterm" class="exam">
+        <h3>Midterm Practical (End of Week 6)</h3>
+        <ul>
+          <li>Build requirement: 4-hero playable match with core abilities functional.</li>
+          <li>Technical defense: explain one custom Verse device and one vector math application.</li>
+          <li>Evidence: updated sprint test reports and short gameplay capture notes.</li>
+        </ul>
+      </section>
+
+      <section id="week7" class="week">
+        <div class="week-title">Week 7: Score and Match Timer Systems</div>
+        <div class="week-body">
+          <article class="item"><span class="label lecture">Lecture 1</span><h3>Scoring Rules and Assist Logic</h3><p>Elimination points, assist windows, and team score rollup.</p></article>
+          <article class="item"><span class="label lecture">Lecture 2</span><h3>Tie Handling and Deterministic Endings</h3><p>Sudden death behavior and timer terminal states.</p></article>
+          <article class="item"><span class="label lab">Lab</span><h3>Score Manager Implementation</h3><ul><li>Add elimination + assist scoring.</li><li>Implement timer and tie-break flow.</li><li>Validate scoreboard consistency.</li></ul></article>
+          <article class="item"><span class="label quiz">Quiz</span><h3>Knowledge Check (10)</h3><p>Scoring edge cases and deterministic match end logic.</p></article>
+        </div>
+      </section>
+
+      <section id="week8" class="week">
+        <div class="week-title">Week 8: HUD and Combat Feedback</div>
+        <div class="week-body">
+          <article class="item"><span class="label lecture">Lecture 1</span><h3>Readability Under Combat Load</h3><p>Signal hierarchy, conflict reduction, and response timing.</p></article>
+          <article class="item"><span class="label lecture">Lecture 2</span><h3>Widget Update Contracts</h3><p>Health bar, cooldowns, kill feed, and status icon synchronization.</p></article>
+          <article class="item"><span class="label lab">Lab</span><h3>HUD Completion Pass</h3><ul><li>Implement kill feed and damage indicators.</li><li>Add ability cooldown and status displays.</li><li>Validate readability from spectator review.</li></ul></article>
+          <article class="item"><span class="label quiz">Quiz</span><h3>Knowledge Check (10)</h3><p>HUD update timing and clarity metrics.</p></article>
+        </div>
+      </section>
+
+      <section id="week9" class="week">
+        <div class="week-title">Week 9: Arena Hazards and Spawn Fairness</div>
+        <div class="week-body">
+          <article class="item"><span class="label lecture">Lecture 1</span><h3>Map Fairness Design</h3><p>Symmetry, lane pressure, hazard placement, and role access.</p></article>
+          <article class="item"><span class="label lecture">Lecture 2</span><h3>Weighted Spawn Selection</h3><p>Distance weighting, anti-camping behavior, and risk tradeoffs.</p></article>
+          <article class="item"><span class="label lab">Lab</span><h3>Hazard + Spawn Selector Build</h3><ul><li>Implement hazard manager hooks.</li><li>Implement weighted spawn point selection.</li><li>Run fairness scenarios and record outcomes.</li></ul></article>
+          <article class="item"><span class="label quiz">Quiz</span><h3>Knowledge Check (10)</h3><p>Spawn weighting and fairness validation techniques.</p></article>
+          <article class="item"><span class="label test">Phase Test</span><h3>Phase 3 Integration Test</h3><p>Integration verification across scoring, HUD, map, and respawn behavior.</p></article>
+        </div>
+      </section>
+
+      <section id="week10" class="week">
+        <div class="week-title">Week 10: VFX, SFX, and Game Feel</div>
+        <div class="week-body">
+          <article class="item"><span class="label lecture">Lecture 1</span><h3>Responsiveness and Impact</h3><p>Frame-near feedback, hit confirmation, and damage communication.</p></article>
+          <article class="item"><span class="label lecture">Lecture 2</span><h3>Feedback Priority Strategy</h3><p>How to preserve readability in high-chaos moments.</p></article>
+          <article class="item"><span class="label lab">Lab</span><h3>Polish Event Pass</h3><ul><li>Add VFX/SFX to key events.</li><li>Tune low-health and elimination feedback.</li><li>Validate cue consistency per hero.</li></ul></article>
+          <article class="item"><span class="label quiz">Quiz</span><h3>Knowledge Check (8)</h3><p>Feedback hierarchy and perception-oriented tuning.</p></article>
+        </div>
+      </section>
+
+      <section id="week11" class="week">
+        <div class="week-title">Week 11: Balance and Regression</div>
+        <div class="week-body">
+          <article class="item"><span class="label lecture">Lecture 1</span><h3>Balance Methodology</h3><p>Role KPIs, outlier detection, and adjustment strategy.</p></article>
+          <article class="item"><span class="label lecture">Lecture 2</span><h3>Regression Discipline</h3><p>Test matrix design and defect triage for multiplayer changes.</p></article>
+          <article class="item"><span class="label lab">Lab</span><h3>Playtest and Tuning Report</h3><ul><li>Run structured playtest sessions.</li><li>Document defects and balancing proposals.</li><li>Apply selected tuning changes.</li></ul></article>
+          <article class="item"><span class="label quiz">Quiz</span><h3>Knowledge Check (8)</h3><p>Evidence-based balancing and regression planning.</p></article>
+        </div>
+      </section>
+
+      <section id="week12" class="week">
+        <div class="week-title">Week 12: Publishing and Professional Defense</div>
+        <div class="week-body">
+          <article class="item"><span class="label lecture">Lecture 1</span><h3>Release Workflow</h3><p>Publish checklist, metadata, and promotion readiness.</p></article>
+          <article class="item"><span class="label lecture">Lecture 2</span><h3>Professional Project Narrative</h3><p>90-second summary, 5-minute deep dive, and technical Q and A prep.</p></article>
+          <article class="item"><span class="label lab">Lab</span><h3>Capstone Package Build</h3><ul><li>Finalize README and technical breakdown.</li><li>Prepare gameplay reel script and evidence index.</li><li>Complete final sprint reports.</li></ul></article>
+          <article class="item"><span class="label quiz">Quiz</span><h3>Knowledge Check (8)</h3><p>Publishing decisions, communication clarity, and architecture defense.</p></article>
+        </div>
+      </section>
+
+      <section id="final" class="exam">
+        <h3>Final Exam and Capstone Defense</h3>
+        <ul>
+          <li>Written exam: 30 questions across architecture, combat systems, abilities, and multiplayer logic.</li>
+          <li>Practical: walkthrough of one complete match, one custom device, and one balancing decision.</li>
+          <li>Required artifacts: sprint reports, technical breakdown, and release-ready documentation.</li>
+        </ul>
+      </section>
+
+      <footer class="foot">
+        Source docs: <code>curriculumoutline.md</code> and <code>entire_course.md</code>. This HTML is intentionally project-specific to Multi-Ability Arena and does not import content from other projects.
+      </footer>
+    </main>
+  </div>
+  <script>
+    (function () {
+      function gradeQuiz(card) {
+        var questions = card.querySelectorAll(".question");
+        var total = questions.length;
+        var correct = 0;
+        var unanswered = 0;
+
+        questions.forEach(function (q) {
+          q.classList.remove("correct", "incorrect");
+          var answer = q.getAttribute("data-answer");
+          var selected = q.querySelector("input[type='radio']:checked");
+          if (!selected) {
+            unanswered += 1;
+            return;
+          }
+          if (selected.value === answer) {
+            correct += 1;
+            q.classList.add("correct");
+          } else {
+            q.classList.add("incorrect");
+          }
+        });
+
+        var percent = Math.round((correct / total) * 100);
+        var result = card.querySelector(".result");
+        result.textContent = "Score: " + correct + "/" + total + " (" + percent + "%), Unanswered: " + unanswered;
+      }
+
+      document.querySelectorAll(".quiz-card").forEach(function (card) {
+        var gradeBtn = card.querySelector(".grade-quiz");
+        var revealBtn = card.querySelector(".reveal-answers");
+
+        gradeBtn.addEventListener("click", function () {
+          gradeQuiz(card);
+        });
+
+        revealBtn.addEventListener("click", function () {
+          card.classList.toggle("show-answers");
+          revealBtn.textContent = card.classList.contains("show-answers") ? "Hide Answers" : "Show Answers";
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
