@@ -107,18 +107,15 @@
 
 ## Sprint Execution Log
 - Current Status Date: 2026-02-19
-- Active Sprint: Sprint 2 (Accepted Complete)
+- Active Sprint: Sprint 3 (In Progress)
 - Today Execution Tasks:
-  - [x] Create project folder/module skeleton matching architecture.
-  - [x] Draft initial `match_config` constants.
-  - [x] Implement basic `game_state_manager` enum + transition guards.
-  - [x] Add temporary debug output for state transitions.
-  - [x] Implement default hero fallback in `hero_select_manager`.
-  - [x] Implement match pause/backfill manager.
-  - [x] Implement runtime late-join/leave coordinator wiring.
-  - [x] Implement explicit leave cleanup for cooldown/status/hero runtime markers.
+  - [x] Implement `health_manager` with HP registration, damage, healing, and overkill protection.
+  - [x] Implement `damage_pipeline` with invulnerability gating and damage modifier support.
+  - [x] Implement `elimination_handler` to detect lethal outcomes and handoff to respawn.
+  - [x] Implement `respawn_manager` with respawn delay and post-spawn invulnerability.
+  - [ ] Complete live UEFN runtime validation for full damage/elimination/respawn loop.
 - Blockers:
-  - None recorded.
+  - Multi-client runtime coverage still limited by available test accounts.
 
 ## Weekly Rituals
 - Sprint Planning: Monday
