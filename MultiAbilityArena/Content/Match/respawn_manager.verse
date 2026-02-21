@@ -1,3 +1,4 @@
+using { /Verse.org/Simulation }
 # Sprint 3 combat core: respawn timing and post-spawn invulnerability windows.
 
 respawn_manager := class:
@@ -13,8 +14,8 @@ respawn_manager := class:
 
     Tick(
         DeltaTime : float,
-        HealthManager : health_manager,
-        DamagePipeline : damage_pipeline
+        HealthManager : Combat.health_manager,
+        DamagePipeline : Combat.damage_pipeline
     ) : void =
         for (Player -> TimeRemaining : PendingRespawnTimerByPlayer):
             NewRemaining := TimeRemaining - DeltaTime
@@ -35,8 +36,8 @@ respawn_manager := class:
 
     FinalizeRespawn(
         Player : agent,
-        HealthManager : health_manager,
-        DamagePipeline : damage_pipeline
+        HealthManager : Combat.health_manager,
+        DamagePipeline : Combat.damage_pipeline
     ) : void =
         HealthManager.ResetToFullHealth(Player)
         DamagePipeline.SetInvulnerable(Player, true)
@@ -48,3 +49,4 @@ respawn_manager := class:
             set RespawnDelaySeconds = DelaySeconds
         if (InvulnerabilitySeconds > 0.0):
             set SpawnInvulnerabilitySeconds = InvulnerabilitySeconds
+

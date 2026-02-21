@@ -1,3 +1,4 @@
+using { /Verse.org/Simulation }
 # Sprint 2 core: hero selection phase manager (timer + default fallback scaffold).
 
 hero_select_manager := class:
@@ -69,3 +70,4 @@ hero_select_manager := class:
             if (Existing <> Player):
                 set Filtered += array{Existing}
         return Filtered
+

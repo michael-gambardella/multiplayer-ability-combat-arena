@@ -7,7 +7,7 @@ match_population_manager := class:
     var IsPausedForBackfill : logic = false
     var ForfeitTriggered : logic = false
 
-    EvaluatePopulation(TeamManager : team_manager) : void =
+    EvaluatePopulation(TeamManager : Core.team_manager) : void =
         CurrentPlayers := TeamManager.GetTotalPlayers()
         if (CurrentPlayers < MinPlayersToRun):
             if (not IsPausedForBackfill):
@@ -28,8 +28,8 @@ match_population_manager := class:
             return true
         return false
 
-    OnPlayerJoinedOrReturned(TeamManager : team_manager) : void =
+    OnPlayerJoinedOrReturned(TeamManager : Core.team_manager) : void =
         EvaluatePopulation(TeamManager)
 
-    OnPlayerLeft(TeamManager : team_manager) : void =
+    OnPlayerLeft(TeamManager : Core.team_manager) : void =
         EvaluatePopulation(TeamManager)

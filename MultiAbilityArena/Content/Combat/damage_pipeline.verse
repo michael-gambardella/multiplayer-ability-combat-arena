@@ -1,3 +1,4 @@
+using { /Verse.org/Simulation }
 # Sprint 3 combat core: damage pipeline with invulnerability and modifiers.
 
 damage_pipeline := class:
@@ -52,3 +53,4 @@ damage_pipeline := class:
         if (A > B):
             return A
         return B
+

@@ -1,3 +1,4 @@
+using { /Verse.org/Simulation }
 # Sprint 3 combat core: elimination detection and respawn handoff.
 
 elimination_handler := class:
@@ -13,7 +14,7 @@ elimination_handler := class:
         Target : agent,
         CurrentTimeSeconds : float,
         HealthManager : health_manager,
-        RespawnManager : respawn_manager
+        RespawnManager : Match.respawn_manager
     ) : logic =
         if (HealthManager.GetCurrentHP(Target) > 0.0):
             return false
@@ -30,3 +31,4 @@ elimination_handler := class:
 
         set EliminationEventLog += array{"Eliminated: Victim={Target} Killer={EliminatorLabel} Time={CurrentTimeSeconds}"}
         return true
+

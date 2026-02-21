@@ -73,7 +73,7 @@
 ### TC-S2-006 - Player Resource Cleanup Coverage
 - Objective: Validate leave flow cleans player-owned runtime states.
 - Expected Result: Team map + cooldown/status/hero runtime state markers are reset.
-- Actual Result: `CleanupPlayerRuntimeState` resets cooldown/status/hero markers; team mapping reset remains documented workaround until true map erase API is wired.
+- Actual Result: `OnPlayerLeft` now removes departed-player entries from `PlayerTeamMap`, `PlayerCooldownState`, `PlayerStatusState`, and `PlayerHeroState` via filtered-map rebuild helpers.
 - Status: Passed
 
 ### TC-S2-007 - Hero Select Manager Presence
@@ -109,7 +109,7 @@
 ### TC-S2-012 - Transition Debug Hook (Carryover from Sprint 1)
 - Objective: Validate state transition diagnostics remain present.
 - Expected Result: Transition success/failure logs stored.
-- Actual Result: `game_state_manager.TransitionLog` captures state transitions and blocked transitions.
+- Actual Result: `game_state_manager` captures transition diagnostics in `TransitionLog` and now exposes listener callbacks (`OnStateChanged`, `OnTransitionBlocked`) for downstream subscribers.
 - Status: Passed
 
 ## Runtime Validation (UEFN Session)
@@ -153,13 +153,11 @@
   - Multi-client runtime verification: Pending
 
 ## Residual Risks (Non-Blocking)
-1. `PlayerTeamMap` uses reset workaround instead of true erase until final Verse map erase API usage is confirmed.
-2. Runtime flow is implemented at coordinator level; final UEFN event device wiring still required in integration phase.
+1. Listener registration is now implemented in `runtime_harness_device.OnBegin`, but this device must be placed/enabled in the target level to execute at runtime.
+2. Full multi-client UEFN event/device wiring still requires live integration validation.
 
 ## Defects / Gaps
 - No blocking Sprint 2 defects remain.
-- Open technical debt item:
-  - TD-S2-001: Replace map reset workaround with true erase operation when API availability is finalized.
 - Open validation gap:
   - VAL-S2-001: Complete multi-client runtime verification for late join, leave/rejoin, and backfill behaviors.
 

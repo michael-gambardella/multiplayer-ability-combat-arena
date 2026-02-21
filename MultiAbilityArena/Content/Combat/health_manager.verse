@@ -1,3 +1,4 @@
+using { /Verse.org/Simulation }
 # Sprint 3 combat core: health ownership, clamping, and lifecycle helpers.
 
 damage_type := enum:
@@ -74,3 +75,4 @@ health_manager := class:
         if (Value > MaxValue):
             return MaxValue
         return Value
+

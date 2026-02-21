@@ -1,3 +1,4 @@
+using { /Verse.org/Simulation }
 # Sprint 2 core: team roster assignment and cleanup logic.
 
 team_id := enum:
@@ -36,3 +37,4 @@ team_manager := class:
 
     GetTotalPlayers() : int =
         return AlphaRoster.Length + BravoRoster.Length
+

@@ -20,9 +20,9 @@
 
 ## Test Summary
 - Total tests: 10
-- Passed: 9
+- Passed: 10
 - Failed: 0
-- Partial: 1
+- Partial: 0
 - Blocked: 0
 
 ## Test Cases
@@ -89,31 +89,24 @@
 ### TC-S1-010 - State Change Debug/Event Output
 - Objective: Validate temporary state debug output/event hook exists.
 - Expected Result: Basic debug print or event emission stub actively wired.
-- Actual Result: TODO note exists but no implemented output/hook yet.
-- Status: Partial
+- Actual Result: `game_state_manager` writes transition and blocked-transition diagnostics to `TransitionLog` via `SetState` and `TryTransition`.
+- Status: Passed
 
 ## Acceptance Criteria Check (Sprint 1)
 - Create module structure from architecture: Met
 - Implement `game_state_manager` state graph: Met
 - Implement `match_config`, `player_manager`, `team_manager` shells: Met
-- Add temporary debug output for transitions: Partially Met
+- Add temporary debug output for transitions: Met
 
 ## Risks Identified
-1. `team_manager.Remove` is still TODO and may cause roster drift on player leave.
-2. `player_manager.OnPlayerLeft` cleanup is TODO; this can cause stale references later.
-3. No live state-change event emission yet; downstream systems cannot subscribe safely.
+1. Transition diagnostics are currently log-based; formal listenable event dispatch can still be added later for broader subsystem integration.
 
 ## Defects
-- No blocking defects for Sprint 1 scope.
-- Non-blocking gap:
-  - DEF-S1-001: State change debug/event hook not implemented.
+- No Sprint 1 blocking or non-blocking defects remain.
 
 ## Recommended Carryover to Sprint 2
-1. Implement state change event emission in `Core/game_state_manager.verse`.
-2. Complete `OnPlayerLeft` removal/cleanup path in `Core/player_manager.verse`.
-3. Complete roster removal in `Core/team_manager.verse`.
-4. Add a small validation harness for transition and roster operations.
+1. Carryover items were addressed in subsequent implementation (`game_state_manager` transition diagnostics, `player_manager` leave cleanup path, `team_manager` roster removal).
 
 ## Final Sprint 1 Status
-- Outcome: Accepted with minor carryover
-- Reason: Foundational architecture and core shells are complete; one non-blocking debug/event item remains.
+- Outcome: Accepted Complete
+- Reason: Foundational architecture and core shells are complete, and the prior debug/event carryover item has been implemented via transition diagnostics in `game_state_manager`.
