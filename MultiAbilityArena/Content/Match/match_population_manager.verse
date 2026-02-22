@@ -1,16 +1,14 @@
-# Sprint 2 core: minimum-player pause/backfill handling.
-
-match_population_manager := class:
+match_population_manager<public> := class:
     var MinPlayersToRun : int = 4
     var BackfillGraceSeconds : float = 30.0
     var RemainingBackfillSeconds : float = 30.0
     var IsPausedForBackfill : logic = false
     var ForfeitTriggered : logic = false
 
-    EvaluatePopulation(TeamManager : Core.team_manager) : void =
+    EvaluatePopulation<public>(TeamManager : Core.team_manager) : void =
         CurrentPlayers := TeamManager.GetTotalPlayers()
-        if (CurrentPlayers < MinPlayersToRun):
-            if (not IsPausedForBackfill):
+        if ((CurrentPlayers < MinPlayersToRun)):
+            if ((IsPausedForBackfill = false)):
                 set IsPausedForBackfill = true
                 set RemainingBackfillSeconds = BackfillGraceSeconds
         else:
@@ -18,18 +16,19 @@ match_population_manager := class:
             set RemainingBackfillSeconds = BackfillGraceSeconds
             set ForfeitTriggered = false
 
-    TickBackfill(DeltaTime : float) : logic =
-        if (not IsPausedForBackfill):
+    TickBackfill<public>(DeltaTime : float) : logic =
+        if ((IsPausedForBackfill = false)):
             return false
 
         set RemainingBackfillSeconds = RemainingBackfillSeconds - DeltaTime
-        if (RemainingBackfillSeconds <= 0.0):
+        if ((RemainingBackfillSeconds <= 0.0)):
             set ForfeitTriggered = true
             return true
         return false
 
-    OnPlayerJoinedOrReturned(TeamManager : Core.team_manager) : void =
+    OnPlayerJoinedOrReturned<public>(TeamManager : Core.team_manager) : void =
         EvaluatePopulation(TeamManager)
 
-    OnPlayerLeft(TeamManager : Core.team_manager) : void =
+    OnPlayerLeft<public>(TeamManager : Core.team_manager) : void =
         EvaluatePopulation(TeamManager)
+

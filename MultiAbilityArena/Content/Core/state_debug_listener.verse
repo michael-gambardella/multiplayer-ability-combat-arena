@@ -1,10 +1,10 @@
 # Sprint 2/3 integration: concrete listener for game_state_manager callbacks.
 
-state_debug_listener := class(game_state_listener):
+state_debug_listener<public> := class(Core.game_state_listener):
     var ListenerEventLog : []string = array{}
 
-    OnStateChanged(Previous : game_state, Current : game_state) : void =
-        set ListenerEventLog += array{"OnStateChanged: {Previous}->{Current}"}
+    OnStateChanged<override>(Previous : Core.game_state, Current : Core.game_state) : void =
+        set ListenerEventLog += array{"OnStateChanged"}
 
-    OnTransitionBlocked(From : game_state, To : game_state) : void =
-        set ListenerEventLog += array{"OnTransitionBlocked: {From}->{To}"}
+    OnTransitionBlocked<override>(From : Core.game_state, To : Core.game_state) : void =
+        set ListenerEventLog += array{"OnTransitionBlocked"}

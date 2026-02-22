@@ -1,63 +1,62 @@
 using { /Verse.org/Simulation }
-# Sprint 4 ability framework: activation routing + cooldown gate + Titan integration.
 
-ability_system := class:
+ability_system<public> := class:
     var HeroByPlayer : [agent]string = map{}
     var AbilitiesEnabled : logic = true
     var AbilityEventLog : []string = array{}
 
-    RegisterHero(Player : agent, HeroId : string) : void =
+    RegisterHero<public>(Player : agent, HeroId : string) : void =
         if (set HeroByPlayer[Player] = HeroId) {}
-        set AbilityEventLog += array{"RegisterHero: {Player} Hero={HeroId}"}
+        set AbilityEventLog += array{"RegisterHero"}
 
-    SetAbilitiesEnabled(Enabled : logic) : void =
+    SetAbilitiesEnabled<public>(Enabled : logic) : void =
         set AbilitiesEnabled = Enabled
-        set AbilityEventLog += array{"SetAbilitiesEnabled: {Enabled}"}
+        set AbilityEventLog += array{"SetAbilitiesEnabled"}
 
-    TryActivate(
+    TryActivate<public>(
         Player : agent,
-        Slot : ability_slot,
+        Slot : Combat.ability_slot,
         CurrentTimeSeconds : float,
         PotentialTargets : []agent,
-        CooldownTracker : cooldown_tracker,
+        CooldownTracker : Combat.cooldown_tracker,
         Titan : Heroes.hero_titan,
-        DamagePipeline : damage_pipeline,
-        HealthManager : health_manager,
-        StatusManager : status_effect_manager,
-        KnockbackApplicator : knockback_applicator
+        DamagePipeline : Combat.damage_pipeline,
+        HealthManager : Combat.health_manager,
+        StatusManager : Combat.status_effect_manager,
+        KnockbackApplicator : Combat.knockback_applicator
     ) : logic =
-        if (not AbilitiesEnabled):
-            set AbilityEventLog += array{"BlockedDisabled: {Player} Slot={Slot}"}
+        if (AbilitiesEnabled = false):
+            set AbilityEventLog += array{"BlockedDisabled"}
             return false
 
-        if (CooldownTracker.IsOnCooldown(Player, Slot, CurrentTimeSeconds)):
-            Remaining := CooldownTracker.GetRemainingCooldown(Player, Slot, CurrentTimeSeconds)
-            set AbilityEventLog += array{"BlockedCooldown: {Player} Slot={Slot} Remaining={Remaining}"}
+        IsOnCooldown := CooldownTracker.IsOnCooldown(Player, Slot, CurrentTimeSeconds)
+        if (IsOnCooldown = true):
+            set AbilityEventLog += array{"BlockedCooldown"}
             return false
 
         HeroId := GetHeroId(Player)
-        if (HeroId = "Titan"):
+        if ((HeroId = "Titan")):
             Result := Titan.TryExecuteAbility(Player, Slot, PotentialTargets, DamagePipeline, HealthManager, StatusManager, KnockbackApplicator)
-            if (Result.Succeeded):
+            if (Result.Succeeded = true):
                 CooldownTracker.StartCooldown(Player, Slot, CurrentTimeSeconds, Result.CooldownSeconds, Result.CooldownStartDelaySeconds)
-                set AbilityEventLog += array{"Activated: {Player} Hero={HeroId} Ability={Result.AbilityLabel}"}
+                set AbilityEventLog += array{"Activated"}
                 return true
 
-            set AbilityEventLog += array{"ActivationFailed: {Player} Hero={HeroId} Slot={Slot}"}
+            set AbilityEventLog += array{"ActivationFailed"}
             return false
 
-        set AbilityEventLog += array{"BlockedUnknownHero: {Player} Hero={HeroId}"}
+        set AbilityEventLog += array{"BlockedUnknownHero"}
         return false
 
-    GetRemainingCooldown(
+    GetRemainingCooldown<public>(
         Player : agent,
-        Slot : ability_slot,
+        Slot : Combat.ability_slot,
         CurrentTimeSeconds : float,
-        CooldownTracker : cooldown_tracker
+        CooldownTracker : Combat.cooldown_tracker
     ) : float =
         return CooldownTracker.GetRemainingCooldown(Player, Slot, CurrentTimeSeconds)
 
-    GetHeroId(Player : agent) : string =
+    GetHeroId<public>(Player : agent) : string =
         if (Value := HeroByPlayer[Player]):
             return Value
         return "Titan"

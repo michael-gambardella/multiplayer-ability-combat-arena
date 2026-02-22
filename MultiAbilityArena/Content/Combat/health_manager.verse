@@ -1,78 +1,79 @@
 using { /Verse.org/Simulation }
-# Sprint 3 combat core: health ownership, clamping, and lifecycle helpers.
 
-damage_type := enum:
+damage_type<public> := enum:
     Physical
     Ability
     Ultimate
     Environmental
 
-health_record := struct:
-    MaxHP : float
-    CurrentHP : float
-    IsAlive : logic
+health_record<public> := struct:
+    MaxHP<public> : float
+    CurrentHP<public> : float
+    IsAlive<public> : logic
 
-health_manager := class:
+health_manager<public> := class:
     var HealthByPlayer : [agent]health_record = map{}
     var LastDamageTypeByPlayer : [agent]damage_type = map{}
     var LastHealthEventLog : []string = array{}
 
-    RegisterPlayer(Player : agent, MaxHP : float) : void =
+    RegisterPlayer<public>(Player : agent, MaxHP : float) : void =
         if (set HealthByPlayer[Player] = health_record{MaxHP := MaxHP, CurrentHP := MaxHP, IsAlive := true}) {}
         if (set LastDamageTypeByPlayer[Player] = damage_type.Physical) {}
-        set LastHealthEventLog += array{"RegisterPlayer: {Player} HP={MaxHP}"}
+        set LastHealthEventLog += array{"RegisterPlayer"}
 
-    GetCurrentHP(Player : agent) : float =
+    GetCurrentHP<public>(Player : agent) : float =
         if (Health := HealthByPlayer[Player]):
             return Health.CurrentHP
         return 0.0
 
-    GetMaxHP(Player : agent) : float =
+    GetMaxHP<public>(Player : agent) : float =
         if (Health := HealthByPlayer[Player]):
             return Health.MaxHP
         return 0.0
 
-    IsAlive(Player : agent) : logic =
+    IsAlive<public>(Player : agent) : logic =
         if (Health := HealthByPlayer[Player]):
             return Health.IsAlive
         return false
 
-    ApplyDamage(Player : agent, Amount : float, Type : damage_type) : float =
+    ApplyDamage<public>(Player : agent, Amount : float, Type : damage_type) : float =
         if (Health := HealthByPlayer[Player]):
             ClampedDamage := ClampFloat(Amount, 0.0, Health.CurrentHP)
             NewHP := Health.CurrentHP - ClampedDamage
-            NewAlive := NewHP > 0.0
+            var NewAlive : logic = false
+            if ((NewHP > 0.0)):
+                set NewAlive = true
             if (set HealthByPlayer[Player] = health_record{MaxHP := Health.MaxHP, CurrentHP := NewHP, IsAlive := NewAlive}) {}
             if (set LastDamageTypeByPlayer[Player] = Type) {}
-            set LastHealthEventLog += array{"ApplyDamage: {Player} Amount={ClampedDamage} HP={NewHP}"}
+            set LastHealthEventLog += array{"ApplyDamage"}
             return ClampedDamage
         return 0.0
 
-    ApplyHealing(Player : agent, Amount : float) : float =
+    ApplyHealing<public>(Player : agent, Amount : float) : float =
         if (Health := HealthByPlayer[Player]):
-            if (not Health.IsAlive):
+            if (Health.IsAlive = false):
                 return 0.0
             TargetHP := Health.CurrentHP + Amount
             NewHP := ClampFloat(TargetHP, 0.0, Health.MaxHP)
             AppliedHealing := NewHP - Health.CurrentHP
             if (set HealthByPlayer[Player] = health_record{MaxHP := Health.MaxHP, CurrentHP := NewHP, IsAlive := true}) {}
-            set LastHealthEventLog += array{"ApplyHealing: {Player} Amount={AppliedHealing} HP={NewHP}"}
+            set LastHealthEventLog += array{"ApplyHealing"}
             return AppliedHealing
         return 0.0
 
-    SetAliveState(Player : agent, Alive : logic) : void =
+    SetAliveState<public>(Player : agent, Alive : logic) : void =
         if (Health := HealthByPlayer[Player]):
             if (set HealthByPlayer[Player] = health_record{MaxHP := Health.MaxHP, CurrentHP := Health.CurrentHP, IsAlive := Alive}) {}
 
-    ResetToFullHealth(Player : agent) : void =
+    ResetToFullHealth<public>(Player : agent) : void =
         if (Health := HealthByPlayer[Player]):
             if (set HealthByPlayer[Player] = health_record{MaxHP := Health.MaxHP, CurrentHP := Health.MaxHP, IsAlive := true}) {}
-            set LastHealthEventLog += array{"ResetToFullHealth: {Player}"}
+            set LastHealthEventLog += array{"ResetToFullHealth"}
 
     ClampFloat(Value : float, MinValue : float, MaxValue : float) : float =
-        if (Value < MinValue):
+        if ((Value < MinValue)):
             return MinValue
-        if (Value > MaxValue):
+        if ((Value > MaxValue)):
             return MaxValue
         return Value
 
