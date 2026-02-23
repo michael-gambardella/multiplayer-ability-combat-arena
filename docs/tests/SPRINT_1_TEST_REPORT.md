@@ -19,8 +19,8 @@
 - Validation type: Static verification of scaffolded files and logic structure.
 
 ## Test Summary
-- Total tests: 10
-- Passed: 10
+- Total tests: 12
+- Passed: 12
 - Failed: 0
 - Partial: 0
 - Blocked: 0
@@ -92,6 +92,18 @@
 - Actual Result: `game_state_manager` writes transition and blocked-transition diagnostics to `TransitionLog` via `SetState` and `TryTransition`.
 - Status: Passed
 
+### TC-S1-011 - Verse Global Compile + Scene Load Smoke
+- Objective: Validate project compiles in UEFN and scene starts without Verse errors.
+- Expected Result: Global Verse compile completes successfully and playable scene loads cleanly.
+- Actual Result: UEFN log reports repeated successful compiles: `Global Verse compile (rebuild all, 2 packages compiled in 492.4 ms) finished: SUCCESS.`, `...396.6 ms... SUCCESS.`, and `...378.8 ms... SUCCESS.` Scene loaded with no Verse compile/runtime errors observed.
+- Status: Passed
+
+### TC-S1-012 - Live Edit Session Launch + Content Activation
+- Objective: Validate project sync, validation, matchmaking, and session activation complete without blocking errors.
+- Expected Result: Upload/validation completes, edit session starts, content update succeeds, and minigame reaches active play state.
+- Actual Result: Logs show `Upload -> Channel State: Completed Successfully`, `FlowStep_RunLocalValidation(): Complete`, `Play succeeded.`, `Connected to Session: 739337e612d84b0684569aca0a985545`, `Server Summary - Successfully activated content on all platforms`, and minigame transitions to `EFortMinigameState::InProgress`.
+- Status: Passed
+
 ## Acceptance Criteria Check (Sprint 1)
 - Create module structure from architecture: Met
 - Implement `game_state_manager` state graph: Met
@@ -100,6 +112,8 @@
 
 ## Risks Identified
 1. Transition diagnostics are currently log-based; formal listenable event dispatch can still be added later for broader subsystem integration.
+2. EOS RTC tick-delay log entries were observed during runtime session; these are performance/network timing warnings and not Verse compile failures.
+3. Non-blocking platform/plugin warnings were observed (`plugin ... not mounted`, `UAF ... skipped`, hotfix patch partials, transient matchmaking/session retry); none blocked Verse build, validation, or session launch in this run.
 
 ## Defects
 - No Sprint 1 blocking or non-blocking defects remain.

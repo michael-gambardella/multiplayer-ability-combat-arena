@@ -21,17 +21,19 @@
 
 ## Files Reviewed
 - `Combat/health_manager.verse`
+- `Combat/combat_event_listener.verse`
 - `Combat/damage_pipeline.verse`
 - `Combat/elimination_handler.verse`
 - `Match/respawn_manager.verse`
+- `Match/runtime_harness_device.verse`
 - `Core/match_config.verse`
 
 ## Test Summary
-- Total tests: 12
-- Passed: 10
+- Total tests: 13
+- Passed: 13
 - Failed: 0
 - Partial: 0
-- Blocked: 2
+- Blocked: 0
 
 ## Test Cases
 
@@ -95,36 +97,54 @@
 - Actual Result: `FinalizeRespawn` sets invulnerability true and starts invuln timer; `Tick` expires it.
 - Status: Passed
 
+### TC-S3-013 - Single-Player Runtime Harness Wiring
+- Objective: Ensure Sprint 3 combat loop has a callable runtime harness path in-scene.
+- Expected Result: Runtime harness initializes combat managers, registers players, runs respawn tick loop, and executes an automated Sprint 3 smoke sequence.
+- Actual Result: `runtime_harness_device` now wires `health_manager`, `damage_pipeline`, `elimination_handler`, and `respawn_manager`; auto-runs a one-player smoke flow and emits `S3_SMOKE_*` markers.
+- Status: Passed
+
 ### TC-S3-011 - Runtime Combat Loop Validation
 - Objective: Validate full live loop (damage -> elimination -> respawn -> invulnerability expiry) in UEFN session.
 - Expected Result: Loop executes consistently in live session.
-- Actual Result: Not fully executed yet in live runtime.
-- Status: Blocked
+- Actual Result: Single-player runtime harness execution produced expected sequence: `S3_SMOKE_BEGIN -> S3_SMOKE_ELIM_OK -> S3_SMOKE_INVULN_ACTIVE -> S3_SMOKE_INVULN_EXPIRED -> S3_SMOKE_END`.
+- Status: Passed
 
 ### TC-S3-012 - Event Broadcast Integration Validation
 - Objective: Validate downstream systems consume damage/elimination events.
 - Expected Result: Event subscribers receive combat lifecycle updates.
-- Actual Result: Current implementation logs events internally; listenable event wiring deferred.
-- Status: Blocked
+- Actual Result: Runtime session produced `S3_EVT_PASS` after smoke flow (`S3_SMOKE_BEGIN -> S3_SMOKE_ELIM_OK -> S3_SMOKE_INVULN_ACTIVE -> S3_SMOKE_INVULN_EXPIRED -> S3_EVT_PASS -> S3_SMOKE_END`), confirming listener callbacks were received across damage, elimination, respawn start/finalize, and invulnerability expiry.
+- Status: Passed
 
 ## Exit Criteria Assessment
 - Damage, healing, elimination, and respawn loop runs consistently:
   - Implementation: Met
-  - Live runtime validation: Pending
+  - Live runtime validation: Met (single-player)
 - Overkill protection and event broadcasts are validated:
   - Overkill protection: Met
-  - Event broadcast integration: Pending (currently log-based scaffolding)
+  - Event broadcast integration: Met
 
 ## Residual Risks (Non-Blocking)
-1. Combat lifecycle uses internal event logs; formal event dispatch integration is still pending.
-2. Full runtime behavior still requires live UEFN verification pass.
+1. Validation completed in single-player session; multi-player concurrency behavior remains to be validated in later regression passes.
 
 ## Defects / Gaps
-- No blocking implementation defects identified in Sprint 3 code.
+- DEF-S3-001 (Fixed): `elimination_handler.HandlePostDamage` contained an alive-state gate that could suppress respawn scheduling after lethal damage depending on call order. Guard removed; lethal HP path now schedules respawn consistently.
 - Open validation items:
-  - VAL-S3-001: Complete live runtime damage/elimination/respawn loop verification.
-  - VAL-S3-002: Replace log-based lifecycle events with listenable event wiring.
+  - None for Sprint 3.
+
+## Single-Player Runtime Validation Procedure (UEFN)
+1. Place/enable `runtime_harness_device` in the active test level.
+2. Click Verse compile and confirm build success.
+3. Launch play session with one player.
+4. In Output Log, verify this ordered marker sequence:
+   - `S3_SMOKE_BEGIN`
+   - `S3_SMOKE_ELIM_OK`
+   - `S3_SMOKE_INVULN_ACTIVE`
+   - `S3_SMOKE_INVULN_EXPIRED`
+   - `S3_EVT_PASS`
+   - `S3_SMOKE_END`
+5. If sequence is complete, set `TC-S3-011` to Passed.
+6. If `S3_EVT_PASS` is present, set `TC-S3-012` to Passed.
 
 ## Final Sprint 3 Status
-- Outcome: In Progress (Implementation Complete / Runtime Validation Pending)
-- Reason: Core combat modules are implemented; live runtime and subscriber integration validation remain.
+- Outcome: Accepted Complete
+- Reason: Sprint 3 combat implementation, runtime loop validation, and event subscriber wiring are all verified in-scene (single-player).

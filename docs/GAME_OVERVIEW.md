@@ -1,4 +1,4 @@
-# Multi-Ability Arena — Game Overview
+  # Multi-Ability Arena — Game Overview
 
 > A 3v3 multiplayer hero combat experience built entirely in UEFN with Verse, designed to showcase advanced gameplay engineering, custom device authoring, and polished player-facing systems.
 

@@ -20,10 +20,14 @@ ability_system<public> := class:
         PotentialTargets : []agent,
         CooldownTracker : Combat.cooldown_tracker,
         Titan : Heroes.hero_titan,
+        Specter : Heroes.hero_specter,
+        Sage : Heroes.hero_sage,
         DamagePipeline : Combat.damage_pipeline,
         HealthManager : Combat.health_manager,
         StatusManager : Combat.status_effect_manager,
-        KnockbackApplicator : Combat.knockback_applicator
+        KnockbackApplicator : Combat.knockback_applicator,
+        ProjectileSimulator : Devices.projectile_simulator,
+        AreaEffectZone : Devices.area_effect_zone
     ) : logic =
         if (AbilitiesEnabled = false):
             set AbilityEventLog += array{"BlockedDisabled"}
@@ -37,6 +41,26 @@ ability_system<public> := class:
         HeroId := GetHeroId(Player)
         if ((HeroId = "Titan")):
             Result := Titan.TryExecuteAbility(Player, Slot, PotentialTargets, DamagePipeline, HealthManager, StatusManager, KnockbackApplicator)
+            if (Result.Succeeded = true):
+                CooldownTracker.StartCooldown(Player, Slot, CurrentTimeSeconds, Result.CooldownSeconds, Result.CooldownStartDelaySeconds)
+                set AbilityEventLog += array{"Activated"}
+                return true
+
+            set AbilityEventLog += array{"ActivationFailed"}
+            return false
+
+        if ((HeroId = "Specter")):
+            Result := Specter.TryExecuteAbility(Player, Slot, PotentialTargets, DamagePipeline, HealthManager, StatusManager)
+            if (Result.Succeeded = true):
+                CooldownTracker.StartCooldown(Player, Slot, CurrentTimeSeconds, Result.CooldownSeconds, Result.CooldownStartDelaySeconds)
+                set AbilityEventLog += array{"Activated"}
+                return true
+
+            set AbilityEventLog += array{"ActivationFailed"}
+            return false
+
+        if ((HeroId = "Sage")):
+            Result := Sage.TryExecuteAbility(Player, Slot, PotentialTargets, DamagePipeline, HealthManager, StatusManager, ProjectileSimulator, AreaEffectZone)
             if (Result.Succeeded = true):
                 CooldownTracker.StartCooldown(Player, Slot, CurrentTimeSeconds, Result.CooldownSeconds, Result.CooldownStartDelaySeconds)
                 set AbilityEventLog += array{"Activated"}
