@@ -22,6 +22,7 @@ ability_system<public> := class:
         Titan : Heroes.hero_titan,
         Specter : Heroes.hero_specter,
         Sage : Heroes.hero_sage,
+        Blaster : Heroes.hero_blaster,
         DamagePipeline : Combat.damage_pipeline,
         HealthManager : Combat.health_manager,
         StatusManager : Combat.status_effect_manager,
@@ -61,6 +62,16 @@ ability_system<public> := class:
 
         if ((HeroId = "Sage")):
             Result := Sage.TryExecuteAbility(Player, Slot, PotentialTargets, DamagePipeline, HealthManager, StatusManager, ProjectileSimulator, AreaEffectZone)
+            if (Result.Succeeded = true):
+                CooldownTracker.StartCooldown(Player, Slot, CurrentTimeSeconds, Result.CooldownSeconds, Result.CooldownStartDelaySeconds)
+                set AbilityEventLog += array{"Activated"}
+                return true
+
+            set AbilityEventLog += array{"ActivationFailed"}
+            return false
+
+        if ((HeroId = "Blaster")):
+            Result := Blaster.TryExecuteAbility(Player, Slot, PotentialTargets, DamagePipeline, HealthManager, KnockbackApplicator, AreaEffectZone)
             if (Result.Succeeded = true):
                 CooldownTracker.StartCooldown(Player, Slot, CurrentTimeSeconds, Result.CooldownSeconds, Result.CooldownStartDelaySeconds)
                 set AbilityEventLog += array{"Activated"}

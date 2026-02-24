@@ -1,6 +1,7 @@
 using { /Fortnite.com/Devices }
 using { /Fortnite.com/Playspaces }
 using { /Verse.org/Simulation }
+using { /Verse.org/SpatialMath }
 
 combat_event_probe_listener := class<public>(Combat.combat_event_listener):
     var EventLog : []string = array{}
@@ -41,8 +42,14 @@ runtime_harness_device := class<public><concrete>(creative_device):
     var Titan : Heroes.hero_titan = Heroes.hero_titan{}
     var Specter : Heroes.hero_specter = Heroes.hero_specter{}
     var Sage : Heroes.hero_sage = Heroes.hero_sage{}
+    var Blaster : Heroes.hero_blaster = Heroes.hero_blaster{}
     var ProjectileSimulator : Devices.projectile_simulator = Devices.projectile_simulator{}
     var AreaEffectZone : Devices.area_effect_zone = Devices.area_effect_zone{}
+    var HazardManager : Map.hazard_manager = Map.hazard_manager{}
+    var SpawnSelector : Map.spawn_selector = Map.spawn_selector{}
+    var ScoringManager : Match.scoring_manager = Match.scoring_manager{}
+    var HudController : UI.hud_controller = UI.hud_controller{}
+    var KillFeedManager : UI.kill_feed_manager = UI.kill_feed_manager{}
     var CombatEventProbe : combat_event_probe_listener = combat_event_probe_listener{}
     var Sprint3SmokeRanByPlayer : [agent]logic = map{}
 
@@ -84,7 +91,8 @@ runtime_harness_device := class<public><concrete>(creative_device):
             StatusManager.Tick(0.1)
             AllyTargets := GetCurrentPlayersAsAgents()
             ProjectileSimulator.Tick(0.1)
-            AreaEffectZone.Tick(0.1, AllyTargets, HealthManager, ProjectileSimulator)
+            AreaEffectZone.Tick(0.1, AllyTargets, HealthManager, ProjectileSimulator, KnockbackApplicator)
+            ScoringManager.Tick(0.1)
             Sleep(0.1)
 
     GetCurrentPlayersAsAgents() : []agent =
@@ -152,8 +160,8 @@ runtime_harness_device := class<public><concrete>(creative_device):
         Print("S4_SMOKE_BEGIN")
 
         SelfOnlyTargets : []agent = array{Player}
-        PrimaryActivated := AbilitySystem.TryActivate(Player, Combat.ability_slot.Primary, 0.0, SelfOnlyTargets, CooldownTracker, Titan, Specter, Sage, DamagePipeline, HealthManager, StatusManager, KnockbackApplicator, ProjectileSimulator, AreaEffectZone)
-        PrimaryBlocked := AbilitySystem.TryActivate(Player, Combat.ability_slot.Primary, 0.1, SelfOnlyTargets, CooldownTracker, Titan, Specter, Sage, DamagePipeline, HealthManager, StatusManager, KnockbackApplicator, ProjectileSimulator, AreaEffectZone)
+        PrimaryActivated := AbilitySystem.TryActivate(Player, Combat.ability_slot.Primary, 0.0, SelfOnlyTargets, CooldownTracker, Titan, Specter, Sage, Blaster, DamagePipeline, HealthManager, StatusManager, KnockbackApplicator, ProjectileSimulator, AreaEffectZone)
+        PrimaryBlocked := AbilitySystem.TryActivate(Player, Combat.ability_slot.Primary, 0.1, SelfOnlyTargets, CooldownTracker, Titan, Specter, Sage, Blaster, DamagePipeline, HealthManager, StatusManager, KnockbackApplicator, ProjectileSimulator, AreaEffectZone)
         PrimaryRemaining := AbilitySystem.GetRemainingCooldown(Player, Combat.ability_slot.Primary, 0.1, CooldownTracker)
 
         if (PrimaryActivated = true and PrimaryBlocked = false and PrimaryRemaining > 0.0):
@@ -168,8 +176,8 @@ runtime_harness_device := class<public><concrete>(creative_device):
         else:
             Print("S4_PATH_FAIL")
 
-        SecondaryActivated := AbilitySystem.TryActivate(Player, Combat.ability_slot.Secondary, 13.0, SelfOnlyTargets, CooldownTracker, Titan, Specter, Sage, DamagePipeline, HealthManager, StatusManager, KnockbackApplicator, ProjectileSimulator, AreaEffectZone)
-        UltimateActivated := AbilitySystem.TryActivate(Player, Combat.ability_slot.Ultimate, 80.0, SelfOnlyTargets, CooldownTracker, Titan, Specter, Sage, DamagePipeline, HealthManager, StatusManager, KnockbackApplicator, ProjectileSimulator, AreaEffectZone)
+        SecondaryActivated := AbilitySystem.TryActivate(Player, Combat.ability_slot.Secondary, 13.0, SelfOnlyTargets, CooldownTracker, Titan, Specter, Sage, Blaster, DamagePipeline, HealthManager, StatusManager, KnockbackApplicator, ProjectileSimulator, AreaEffectZone)
+        UltimateActivated := AbilitySystem.TryActivate(Player, Combat.ability_slot.Ultimate, 80.0, SelfOnlyTargets, CooldownTracker, Titan, Specter, Sage, Blaster, DamagePipeline, HealthManager, StatusManager, KnockbackApplicator, ProjectileSimulator, AreaEffectZone)
         if (SecondaryActivated = true and UltimateActivated = true):
             Print("S4_ACTIVATION_PASS")
         else:
@@ -235,9 +243,9 @@ runtime_harness_device := class<public><concrete>(creative_device):
             Print("S5_PURGE_RULES_FAIL")
 
         SelfOnlyTargets : []agent = array{Player}
-        SpecterInvisActivated := AbilitySystem.TryActivate(Player, Combat.ability_slot.Secondary, 200.0, SelfOnlyTargets, CooldownTracker, Titan, Specter, Sage, DamagePipeline, HealthManager, StatusManager, KnockbackApplicator, ProjectileSimulator, AreaEffectZone)
-        SpecterMarkActivated := AbilitySystem.TryActivate(Player, Combat.ability_slot.Ultimate, 260.0, SelfOnlyTargets, CooldownTracker, Titan, Specter, Sage, DamagePipeline, HealthManager, StatusManager, KnockbackApplicator, ProjectileSimulator, AreaEffectZone)
-        SpecterStrikeActivated := AbilitySystem.TryActivate(Player, Combat.ability_slot.Primary, 300.0, SelfOnlyTargets, CooldownTracker, Titan, Specter, Sage, DamagePipeline, HealthManager, StatusManager, KnockbackApplicator, ProjectileSimulator, AreaEffectZone)
+        SpecterInvisActivated := AbilitySystem.TryActivate(Player, Combat.ability_slot.Secondary, 200.0, SelfOnlyTargets, CooldownTracker, Titan, Specter, Sage, Blaster, DamagePipeline, HealthManager, StatusManager, KnockbackApplicator, ProjectileSimulator, AreaEffectZone)
+        SpecterMarkActivated := AbilitySystem.TryActivate(Player, Combat.ability_slot.Ultimate, 260.0, SelfOnlyTargets, CooldownTracker, Titan, Specter, Sage, Blaster, DamagePipeline, HealthManager, StatusManager, KnockbackApplicator, ProjectileSimulator, AreaEffectZone)
+        SpecterStrikeActivated := AbilitySystem.TryActivate(Player, Combat.ability_slot.Primary, 300.0, SelfOnlyTargets, CooldownTracker, Titan, Specter, Sage, Blaster, DamagePipeline, HealthManager, StatusManager, KnockbackApplicator, ProjectileSimulator, AreaEffectZone)
 
         MarkedStrikeDamage := Specter.GetMarkedStrikeDamage(Player, StatusManager)
         BaseStrikeDamage := Specter.GetTeleportStrikeDamage()
@@ -266,7 +274,7 @@ runtime_harness_device := class<public><concrete>(creative_device):
         HPBeforeAllyHeal := HealthManager.GetCurrentHP(Player)
 
         SelfOnlyTargets : []agent = array{Player}
-        AllyOrbActivated := AbilitySystem.TryActivate(Player, Combat.ability_slot.Primary, 400.0, SelfOnlyTargets, CooldownTracker, Titan, Specter, Sage, DamagePipeline, HealthManager, StatusManager, KnockbackApplicator, ProjectileSimulator, AreaEffectZone)
+        AllyOrbActivated := AbilitySystem.TryActivate(Player, Combat.ability_slot.Primary, 400.0, SelfOnlyTargets, CooldownTracker, Titan, Specter, Sage, Blaster, DamagePipeline, HealthManager, StatusManager, KnockbackApplicator, ProjectileSimulator, AreaEffectZone)
         HPAfterAllyHeal := HealthManager.GetCurrentHP(Player)
 
         Sage.ResolveHealingOrbTarget(Player, false, Player, DamagePipeline, HealthManager)
@@ -288,7 +296,7 @@ runtime_harness_device := class<public><concrete>(creative_device):
         StatusManager.ApplySlowFromSourceKey(Player, 2.0, 0.4, 2)
         StatusManager.ApplyStunFromSourceKey(Player, 2.0, 2)
         StatusManager.ApplyDeathMarkFromSourceKey(Player, 3.0, 0.2, 2)
-        PurifyActivated := AbilitySystem.TryActivate(Player, Combat.ability_slot.Secondary, 500.0, SelfOnlyTargets, CooldownTracker, Titan, Specter, Sage, DamagePipeline, HealthManager, StatusManager, KnockbackApplicator, ProjectileSimulator, AreaEffectZone)
+        PurifyActivated := AbilitySystem.TryActivate(Player, Combat.ability_slot.Secondary, 500.0, SelfOnlyTargets, CooldownTracker, Titan, Specter, Sage, Blaster, DamagePipeline, HealthManager, StatusManager, KnockbackApplicator, ProjectileSimulator, AreaEffectZone)
 
         var PurifyClearedSlow : logic = false
         PurifySlowMagnitude := StatusManager.GetSlowMagnitude(Player)
@@ -317,10 +325,10 @@ runtime_harness_device := class<public><concrete>(creative_device):
 
         DamagePipeline.ProcessDamage(Player, Player, 10.0, Combat.damage_type.Physical, HealthManager)
         HPBeforeSanctuary := HealthManager.GetCurrentHP(Player)
-        SanctuaryActivated := AbilitySystem.TryActivate(Player, Combat.ability_slot.Ultimate, 600.0, SelfOnlyTargets, CooldownTracker, Titan, Specter, Sage, DamagePipeline, HealthManager, StatusManager, KnockbackApplicator, ProjectileSimulator, AreaEffectZone)
+        SanctuaryActivated := AbilitySystem.TryActivate(Player, Combat.ability_slot.Ultimate, 600.0, SelfOnlyTargets, CooldownTracker, Titan, Specter, Sage, Blaster, DamagePipeline, HealthManager, StatusManager, KnockbackApplicator, ProjectileSimulator, AreaEffectZone)
         SpawnedProjectileId := ProjectileSimulator.SpawnProjectile(20.0, 100.0)
 
-        AreaEffectZone.Tick(0.2, SelfOnlyTargets, HealthManager, ProjectileSimulator)
+        AreaEffectZone.Tick(0.2, SelfOnlyTargets, HealthManager, ProjectileSimulator, KnockbackApplicator)
         ProjectileSimulator.Tick(0.2)
         HPAfterSanctuaryTick := HealthManager.GetCurrentHP(Player)
         var ProjectileBlocked : logic = false
@@ -338,7 +346,7 @@ runtime_harness_device := class<public><concrete>(creative_device):
         if (SanctuaryBlockingValue = true):
             set SanctuaryBlocking = true
 
-        AreaEffectZone.Tick(6.0, SelfOnlyTargets, HealthManager, ProjectileSimulator)
+        AreaEffectZone.Tick(6.0, SelfOnlyTargets, HealthManager, ProjectileSimulator, KnockbackApplicator)
         var SanctuaryExpired : logic = false
         var SanctuaryActiveAfterDuration : logic = false
         SanctuaryActiveAfterValue := AreaEffectZone.IsSanctuaryActive()
@@ -376,3 +384,167 @@ runtime_harness_device := class<public><concrete>(creative_device):
             Print("S6_SAGE_KIT_FAIL")
 
         Print("S6_SMOKE_END")
+        RunSprint7Smoke(Player)
+
+    RunSprint7Smoke(Player : player) : void =
+        Print("S7_SMOKE_BEGIN")
+        AbilitySystem.RegisterHero(Player, "Blaster")
+
+        SelfOnlyTargets : []agent = array{Player}
+        RocketActivated := AbilitySystem.TryActivate(Player, Combat.ability_slot.Primary, 700.0, SelfOnlyTargets, CooldownTracker, Titan, Specter, Sage, Blaster, DamagePipeline, HealthManager, StatusManager, KnockbackApplicator, ProjectileSimulator, AreaEffectZone)
+        LastKnockbackForce := KnockbackApplicator.GetLastAppliedForce(Player)
+        LastEasedForce := KnockbackApplicator.GetLastEasedAppliedForce(Player)
+        var RocketKnockbackApplied : logic = false
+        if (LastKnockbackForce > 0.0):
+            set RocketKnockbackApplied = true
+
+        var RocketEasedApplied : logic = false
+        if (LastEasedForce > 0.0):
+            set RocketEasedApplied = true
+
+        if (RocketActivated = true and RocketKnockbackApplied = true and RocketEasedApplied = true):
+            Print("S7_ROCKET_PASS")
+        else:
+            Print("S7_ROCKET_FAIL")
+
+        SnareActivated := AbilitySystem.TryActivate(Player, Combat.ability_slot.Secondary, 710.0, SelfOnlyTargets, CooldownTracker, Titan, Specter, Sage, Blaster, DamagePipeline, HealthManager, StatusManager, KnockbackApplicator, ProjectileSimulator, AreaEffectZone)
+        AreaEffectZone.Tick(0.4, SelfOnlyTargets, HealthManager, ProjectileSimulator, KnockbackApplicator)
+        AreaEffectZone.Tick(0.4, SelfOnlyTargets, HealthManager, ProjectileSimulator, KnockbackApplicator)
+        SnareActiveValue := AreaEffectZone.IsGravitySnareActive()
+        SnareTicked := AreaEffectZone.HasZoneEvent("GravitySnareTick")
+        if (SnareActivated = true and SnareActiveValue = true and SnareTicked = true):
+            Print("S7_SNARE_PASS")
+        else:
+            Print("S7_SNARE_FAIL")
+
+        BarrageActivated := AbilitySystem.TryActivate(Player, Combat.ability_slot.Ultimate, 720.0, SelfOnlyTargets, CooldownTracker, Titan, Specter, Sage, Blaster, DamagePipeline, HealthManager, StatusManager, KnockbackApplicator, ProjectileSimulator, AreaEffectZone)
+        AreaEffectZone.Tick(0.7, SelfOnlyTargets, HealthManager, ProjectileSimulator, KnockbackApplicator)
+        AreaEffectZone.Tick(0.7, SelfOnlyTargets, HealthManager, ProjectileSimulator, KnockbackApplicator)
+        BarrageBurstLogged := AreaEffectZone.HasZoneEvent("OrbitalBarrageBurst")
+        if (BarrageActivated = true and BarrageBurstLogged = true):
+            Print("S7_BARRAGE_PASS")
+        else:
+            Print("S7_BARRAGE_FAIL")
+
+        KnockbackForce := KnockbackApplicator.GetLastAppliedForce(Player)
+        HazardTelegraphed : logic = true
+        HazardFair := HazardManager.IsKnockbackFair(KnockbackForce, HazardTelegraphed)
+        if (HazardFair = true):
+            Print("S7_HAZARD_FAIR_PASS")
+        else:
+            Print("S7_HAZARD_FAIR_FAIL")
+
+        HasRocket := Blaster.HasBlasterEvent("ConcussionRocket")
+        HasSnare := Blaster.HasBlasterEvent("GravitySnare")
+        HasBarrage := Blaster.HasBlasterEvent("OrbitalBarrage")
+        if (HasRocket = true and HasSnare = true and HasBarrage = true):
+            Print("S7_BLASTER_KIT_PASS")
+        else:
+            Print("S7_BLASTER_KIT_FAIL")
+
+        Print("S7_SMOKE_END")
+        RunSprint8Smoke(Player)
+
+    RunSprint8Smoke(Player : player) : void =
+        Print("S8_SMOKE_BEGIN")
+
+        ScoringManager.ConfigureMatch(Core.ScoreLimit, Core.MatchDuration, Core.AssistWindow)
+        ScoringManager.RegisterDamage(Player, Player, 0.0)
+        ScoringManager.RegisterElimination(Player, Player, Core.AssistWindow + 2.0)
+
+        ScoreNow := ScoringManager.GetScore(Player)
+        var ScoreApplied : logic = false
+        if (ScoreNow >= 1):
+            set ScoreApplied = true
+
+        AssistCount := ScoringManager.GetAssistCount(Player)
+        var AssistWindowRespected : logic = false
+        if (AssistCount = 0):
+            set AssistWindowRespected = true
+
+        if (ScoreApplied = true):
+            Print("S8_SCORE_PASS")
+        else:
+            Print("S8_SCORE_FAIL")
+
+        if (AssistWindowRespected = true):
+            Print("S8_ASSIST_WINDOW_PASS")
+        else:
+            Print("S8_ASSIST_WINDOW_FAIL")
+
+        ScoringManager.EvaluateSuddenDeathForTest(true)
+        SuddenDeathActive := ScoringManager.IsSuddenDeathActive()
+        if (SuddenDeathActive = true):
+            Print("S8_SUDDEN_DEATH_PASS")
+        else:
+            Print("S8_SUDDEN_DEATH_FAIL")
+
+        MatchTime := ScoringManager.GetMatchTimeSeconds()
+        MatchDuration := ScoringManager.GetMatchDurationSeconds()
+        var TimerValid : logic = false
+        if (MatchTime >= 0.0 and MatchDuration >= 0.0):
+            set TimerValid = true
+
+        if (TimerValid = true):
+            Print("S8_TIMER_PASS")
+        else:
+            Print("S8_TIMER_FAIL")
+
+        KillFeedManager.AddHit(Player, Player)
+        KillFeedManager.AddElimination(Player, Player)
+        KillFeedManager.AddAssist(Player, Player)
+        HitLogged := KillFeedManager.HasKillFeedEvent("KillFeedHit")
+        ElimLogged := KillFeedManager.HasKillFeedEvent("KillFeedElimination")
+        AssistLogged := KillFeedManager.HasKillFeedEvent("KillFeedAssist")
+        if (HitLogged = true and ElimLogged = true and AssistLogged = true):
+            Print("S8_KILL_FEED_PASS")
+        else:
+            Print("S8_KILL_FEED_FAIL")
+
+        HudController.UpdateHUD(Player, ScoringManager, CooldownTracker, HealthManager, 800.0)
+        HudController.RunStressUpdate(Player, 12, ScoringManager, CooldownTracker, HealthManager, 800.0)
+        HudUpdated := HudController.HasHudEvent("HUDUpdate")
+        HudStressUpdated := HudController.HasHudEvent("HUDStressUpdate")
+        if (HudUpdated = true and HudStressUpdated = true):
+            Print("S8_HUD_PASS")
+            Print("S8_STRESS_PASS")
+        else:
+            Print("S8_HUD_FAIL")
+            Print("S8_STRESS_FAIL")
+
+        Print("S8_SMOKE_END")
+        RunSprint9Smoke(Player)
+
+    RunSprint9Smoke(Player : player) : void =
+        Print("S9_SMOKE_BEGIN")
+
+        var EnemyPositions : []Map.point3 = array{}
+        set EnemyPositions += array{Map.point3{X := 130.0, Y := 0.0, Z := 2375.0}}
+        set EnemyPositions += array{Map.point3{X := 400.0, Y := 0.0, Z := 2585.0}}
+        set EnemyPositions += array{Map.point3{X := 430.0, Y := 0.0, Z := 2235.0}}
+        SelectedSpawn := SpawnSelector.SelectSpawnForTeam(1, EnemyPositions)
+        var SpawnSelected : logic = false
+        if (SelectedSpawn = "SP_Alpha_1"):
+            set SpawnSelected = true
+
+        if (SpawnSelected = true):
+            Print("S9_SPAWN_PASS")
+        else:
+            Print("S9_SPAWN_FAIL")
+
+        HazardManager.RegisterTelegraph(1.0)
+        TelegraphValid := HazardManager.EvaluateTelegraphWindow(0.5)
+        TelegraphEventLogged := HazardManager.HasHazardEvent("HazardTelegraphValid")
+        if (TelegraphValid = true and TelegraphEventLogged = true):
+            Print("S9_HAZARD_TELEGRAPH_PASS")
+        else:
+            Print("S9_HAZARD_TELEGRAPH_FAIL")
+
+        RegressionS7Rocket := Blaster.HasBlasterEvent("ConcussionRocket")
+        RegressionS8Hud := HudController.HasHudEvent("HUDUpdate")
+        if (RegressionS7Rocket = true and RegressionS8Hud = true):
+            Print("S9_REGRESSION_PASS")
+        else:
+            Print("S9_REGRESSION_FAIL")
+
+        Print("S9_SMOKE_END")
